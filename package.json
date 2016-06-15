@@ -1,0 +1,14 @@
+{
+  "name": "merge-items",
+  "version": "0.0.0",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
+  "devDependencies": {
+    "mocha": "^2.5.3",
+    "should": "^9.0.2"
+  },
+  "dependencies": {
+    "lodash": "^4.13.1"
+  }
+}
