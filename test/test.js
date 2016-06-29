@@ -83,9 +83,9 @@ it('returns object with inserted and updated items IDs', () => {
 
   result.should.be.instanceof(Object);
   Object.keys(result).should.have.length(2);
-  result.should.have.properties({
-    inserted: [3, 4],
-    updated: [1, 2],
+  result.should.containDeepOrdered({
+    inserted: [{id: 3, name: 'c'}, {id: 4, name: 'd'}],
+    updated: [{id: 1, name: 'aaa'}, {id: 2, name: 'bbb'}],
   });
 });
 
@@ -99,40 +99,40 @@ describe('source', () => {
   });
 });
 
-describe('arg', () => {
-  it('throws if arg is neither object nor array', () => {
+describe('itemArg', () => {
+  it('throws if itemArg is neither object nor array', () => {
     const args = [undefined, null, 0, 1, '', 'abc'];
 
     args.forEach(arg => {
-      (() => mergeItems([], arg)).should.throw('arg must be either object or array, ' + arg + ' given');
+      (() => mergeItems([], arg)).should.throw('itemArg must be either object or array, ' + arg + ' given');
     });
 
     // should not throw
     mergeItems([], new Person({id: 1}));
   });
 
-  it('throws if arg is an object without primaryKey', () => {
-    (() => mergeItems([], {x: 1})).should.throw('primary key "id" is missing in arg {"x":1}');
+  it('throws if itemArg is an object without primaryKey', () => {
+    (() => mergeItems([], {x: 1})).should.throw('primary key "id" is missing in itemArg {"x":1}');
   });
 
-  it('throws if arg is an array containing non-object', () => {
+  it('throws if itemArg is an array containing non-object', () => {
     const args = [undefined, null, 0, 1, '', 'abc', []];
 
     args.forEach(arg => {
-      (() => mergeItems([], [arg])).should.throw('arg contains non-object: ' + arg);
+      (() => mergeItems([], [arg])).should.throw('itemArg contains non-object: ' + arg);
     });
 
     // should not throw
     mergeItems([], [new Person({id: 1})]);
   });
 
-  it('throws if arg is an array containing object without primaryKey', () => {
+  it('throws if itemArg is an array containing object without primaryKey', () => {
     const arg = [{id: 1}, {x: 1}];
 
     (() => mergeItems([], arg)).should.throw('primary key "id" is missing in object {"x":1}');
   });
 
-  it('throws if arg is an array containing objects with the same primaryKey', () => {
+  it('throws if itemArg is an array containing objects with the same primaryKey', () => {
     const arg = [{id: 1}, {id: 2, a: 1}, {id: 2, a: 2}];
 
     (() => mergeItems([], arg)).should.throw('primary key "id" in object {"id":2,"a":2} is not unique');
