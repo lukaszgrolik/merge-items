@@ -1,5 +1,5 @@
 const should = require('should');
-const mergeItems = require('../');
+const mergeItems = require('../dist/merge-items.min');
 
 function Person(body) {
   Object.assign(this, body);

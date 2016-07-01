@@ -1,10 +1,20 @@
-const _ = require('lodash');
+import _find from 'lodash/find';
+import _map from 'lodash/map';
+import _extend from 'lodash/extend';
+import _each from 'lodash/each';
+
+const _ = {
+  find: _find,
+  map: _map,
+  extend: _extend,
+  each: _each,
+};
 
 function isObject(arg) {
   return arg instanceof Object && arg instanceof Array === false;
 }
 
-module.exports = function mergeItems(source, itemArg, opts) {
+export default function mergeItems(source, itemArg, opts) {
   if (opts === undefined) opts = {};
 
   // [step] validate source
