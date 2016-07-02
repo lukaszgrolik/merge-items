@@ -73,7 +73,7 @@ export default function mergeItems(source, itemArg, opts) {
 
   const items = (itemArg instanceof Array) ? itemArg : [itemArg];
   const insertedItems = [];
-  const updatedItems = [];
+  const updatedItemsIds = [];
   let record;
 
   _.each(items, item => {
@@ -83,7 +83,7 @@ export default function mergeItems(source, itemArg, opts) {
       // update existing items
       _.extend(record, item);
 
-      updatedItems.push(record)
+      updatedItemsIds.push(record.id)
     } else {
       // collect new items
       insertedItems.push(item);
@@ -96,7 +96,7 @@ export default function mergeItems(source, itemArg, opts) {
   [].push.apply(source, newInstances);
 
   return {
-    inserted: insertedItems,
-    updated: updatedItems,
+    inserted: _.map(insertedItems, item => item.id),
+    updated: updatedItemsIds,
   };
 };

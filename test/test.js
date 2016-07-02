@@ -89,8 +89,8 @@ it('returns object with inserted and updated items IDs', () => {
   result.should.be.instanceof(Object);
   Object.keys(result).should.have.length(2);
   result.should.containDeepOrdered({
-    inserted: [{id: 3, name: 'c'}, {id: 4, name: 'd'}],
-    updated: [{id: 1, name: 'aaa'}, {id: 2, name: 'bbb'}],
+    inserted: [3, 4],
+    updated: [1, 2],
   });
 });
 
