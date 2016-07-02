@@ -1,5 +1,10 @@
 const should = require('should');
-const mergeItems = require('../dist/merge-items.min');
+
+let scriptPath = '../dist/merge-items';
+
+if (process.env.NODE_ENV === 'production') scriptPath += '.min';
+
+const mergeItems = require(scriptPath);
 
 function Person(body) {
   Object.assign(this, body);

@@ -2,12 +2,28 @@
   "name": "merge-items",
   "version": "0.0.0",
   "main": "dist/merge-items.min.js",
+  "description": "Upserts documents (objects) into collections (arrays) by primary key",
+  "keywords": [
+    "collection",
+    "upsert",
+    "inject",
+    "merge"
+  ],
+  "repository": "https://github.com/lukaszgrolik/merge-items",
+  "homepage": "https://github.com/lukaszgrolik/merge-items",
+  "bugs": "https://github.com/lukaszgrolik/merge-items/issues",
+  "author": {
+    "name": "Łukasz Grolik",
+    "email": "lukasz@grolik.pl",
+    "url": "https://github.com/lukaszgrolik"
+  },
   "scripts": {
     "build": "WEBPACK_ENV=build webpack",
     "dev": "WEBPACK_ENV=dev webpack --progress --colors --watch",
     "test": "mocha",
-    "preversion": "npm run build && npm run test",
-    "postversion": "git push && git push --tags && npm publish"
+    "test:build": "NODE_ENV=production npm run test",
+    "preversion": "npm run build && test:build",
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "lodash": "^4.13.1"
@@ -21,5 +37,6 @@
     "mocha": "^2.5.3",
     "should": "^9.0.2",
     "webpack": "^1.13.1"
-  }
+  },
+  "license": "MIT"
 }
