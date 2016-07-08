@@ -1,4 +1,10 @@
+# merge-items
+
+Upserts documents (objects) into collections (arrays) by primary key
+
 ```js
+import mergeItems from 'merge-items';
+
 const source = [
   {id: 1, name: 'Foo'},
   {id: 2, name: 'Bar'},
@@ -32,8 +38,8 @@ source;
 
 ### primaryKey
 
-type: string
-default: 'id'
+type: *string*
+default: `id`
 
 ```js
 mergeItems(source, items, {
@@ -43,7 +49,9 @@ mergeItems(source, items, {
 
 ### mapper
 
-type: function
+Transforms given objects before inserting.
+
+type: *function*
 
 ```js
 class Person {

@@ -18,12 +18,12 @@
     "url": "https://github.com/lukaszgrolik"
   },
   "scripts": {
+    "dev": "WEBPACK_ENV=dev webpack --progress --colors",
+    "dev:watch": "WEBPACK_ENV=dev webpack --progress --colors --watch",
     "build": "WEBPACK_ENV=build webpack",
-    "dev": "WEBPACK_ENV=dev webpack --progress --colors --watch",
     "test": "mocha",
     "test:build": "NODE_ENV=production npm run test",
-    "preversion": "npm run build && test:build",
-    "postversion": "git push && git push --tags"
+    "preversion": "npm run dev && npm run build && npm run test:build"
   },
   "dependencies": {
     "lodash": "^4.13.1"

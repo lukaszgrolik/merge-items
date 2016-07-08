@@ -3,15 +3,11 @@ const webpack = require('webpack');
 
 const pkg = require('./package');
 
-const library = pkg.name;
 const env = process.env.WEBPACK_ENV;
 const plugins = [];
 
 if (env === 'build') {
   plugins.push(new webpack.optimize.UglifyJsPlugin({minimize: true}));
-  filename = library + '.min.js';
-} else {
-  filename = library + '.js';
 }
 
 module.exports = {
@@ -19,8 +15,8 @@ module.exports = {
   devtool: 'source-map',
   output: {
     path: path.join(__dirname, 'dist'),
-    filename,
-    library,
+    filename: `${pkg.name}${env === 'build' ? '.min' : ''}.js`,
+    library: pkg.name,
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
@@ -32,12 +28,12 @@ module.exports = {
         exclude: /node_modules/,
         query: {
           presets: [
-            'es2015',
-            'stage-0',
-          ],
+            'babel-preset-es2015',
+            'babel-preset-stage-0',
+          ].map(require.resolve),
           plugins: [
-            'add-module-exports',
-          ],
+            'babel-plugin-add-module-exports',
+          ].map(require.resolve),
         },
       },
     ],
