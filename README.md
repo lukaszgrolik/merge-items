@@ -38,8 +38,8 @@ source;
 
 ### primaryKey
 
-type: *string*
-default: `id`
+- type: *string*
+- default: `id`
 
 ```js
 mergeItems(source, items, {
@@ -51,7 +51,7 @@ mergeItems(source, items, {
 
 Transforms given objects before inserting.
 
-type: *function*
+- type: *function*
 
 ```js
 class Person {
