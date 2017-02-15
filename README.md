@@ -17,12 +17,8 @@ const items = [
 mergeItems(source, items);
 // =>
 // {
-//   updated: [
-//     {id: 1, name: 'FooFoo'},
-//   ],
-//   inserted: [
-//     {id: 3, name: 'Baz'},
-//   ],
+//   updated: [1],
+//   inserted: [3],
 // }
 
 source;
