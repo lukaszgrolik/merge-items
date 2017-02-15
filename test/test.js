@@ -200,4 +200,44 @@ describe('result', () => {
       source[0].should.have.property('id', 1);
     });
   });
+
+  describe('"beforeMerge" option', () => {
+    it('calls callback before upserting any of items', () => {
+      const source = [{id: 1}, {id: 2}];
+
+      mergeItems(source, [{id: 1}, {id: 3}], {
+        beforeMerge: (data, isNew) => {
+          return Object.assign({}, data, {
+            a: 5,
+            isNew,
+          });
+        },
+      });
+
+      source.should.have.containDeepOrdered([
+        {id: 1, a: 5, isNew: false},
+        {id: 2},
+        {id: 3, a: 5, isNew: true},
+      ]);
+    });
+  });
+
+  describe('"afterMerge" option', () => {
+    it('calls callback after upserting all items', () => {
+      const source = [{id: 1}, {id: 2}];
+
+      mergeItems(source, [{id: 1, a: 5}, {id: 3, a: 1}], {
+        afterMerge: (obj, data, isNew) => {
+          obj.x = data.a * 3;
+          obj.isNew = isNew;
+        },
+      });
+
+      source.should.have.containDeepOrdered([
+        {id: 1, a: 5, x: 15, isNew: false},
+        {id: 2},
+        {id: 3, x: 3, isNew: true},
+      ]);
+    });
+  });
 });
