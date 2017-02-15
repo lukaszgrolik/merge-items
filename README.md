@@ -43,9 +43,13 @@ mergeItems(source, items, {
 });
 ```
 
-### mapper
+### beforeMerge
 
-Transforms given objects before inserting.
+### afterMerge
+
+### mapper (deprecated)
+
+Transforms given objects before inserting (only new items).
 
 - type: *function*
 
@@ -58,5 +62,25 @@ class Person {
 
 mergeItems(source, items, {
   mapper: item => new Person(item),
+});
+```
+
+This callback is deprecated - use `beforeMerge(item, data, isNew)` when `isNew` is `true`:
+
+```js
+class Person {
+  constructor(body) {
+    Object.assign(this, body);
+  }
+}
+
+mergeItems(source, items, {
+  beforeMerge: (data, isNew) => {
+    if (isNew) {
+      return new Person(data);
+    } else {
+      return data;
+    }
+  },
 });
 ```
