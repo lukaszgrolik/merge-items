@@ -2,6 +2,18 @@
 
 Upserts documents (objects) into collections (arrays) by primary key
 
+## Getting started
+
+`npm i -S merge-items`
+
+```js
+import mergeItems from 'merge-items';
+
+mergeItems(source, items, options);
+```
+
+## Example
+
 ```js
 import mergeItems from 'merge-items';
 
