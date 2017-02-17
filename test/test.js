@@ -92,7 +92,7 @@ describe('upserting', () => {
     mergeItems(source, {id: 3, name: 'c'});
 
     source.should.have.length(3);
-    source.should.containDeepOrdered([
+    source.should.eql([
       {id: 1, name: 'aaa'},
       {id: 2, name: 'b'},
       {id: 3, name: 'c'},
@@ -112,7 +112,7 @@ describe('upserting', () => {
     mergeItems(source, newItems);
 
     source.should.have.length(3);
-    source.should.containDeepOrdered([
+    source.should.eql([
       {id: 1, name: 'aaa'},
       {id: 2, name: 'b'},
       {id: 3, name: 'c'},
@@ -121,41 +121,19 @@ describe('upserting', () => {
 });
 
 describe('return value', () => {
-  it('contains inserted, updated and upserted items', () => {
+  it('returns upserted item if single item given', () => {
     const source = [
       {id: 1, name: 'a'},
       {id: 2, name: 'b'},
       {id: 5, name: 'e'},
     ];
-    const newItems = [
-      {id: 1, name: 'aaa'},
-      {id: 2, name: 'bbb'},
-      {id: 3, name: 'c'},
-      {id: 4, name: 'd'},
-    ];
-
-    const result = mergeItems(source, newItems);
+    const result = mergeItems(source, {id: 1, name: 'aaa'});
 
     result.should.be.instanceof(Object);
-    result.should.have.containDeepOrdered({
-      inserted: [
-        {id: 3, name: 'c'},
-        {id: 4, name: 'd'},
-      ],
-      updated: [
-        {id: 1, name: 'aaa'},
-        {id: 2, name: 'bbb'},
-      ],
-      upserted: [
-        {id: 1, name: 'aaa'},
-        {id: 2, name: 'bbb'},
-        {id: 3, name: 'c'},
-        {id: 4, name: 'd'},
-      ],
-    });
+    result.should.have.eql({id: 1, name: 'aaa'});
   });
 
-  it('has upserted items list', () => {
+  it('returns array of upserted items if array of items given', () => {
     const source = [
       {id: 1, name: 'a'},
       {id: 2, name: 'b'},
@@ -170,9 +148,8 @@ describe('return value', () => {
 
     const result = mergeItems(source, newItems);
 
-    result.should.be.instanceof(Object);
-    result.should.have.property('upserted');
-    result.upserted.should.containDeepOrdered([
+    result.should.be.instanceof(Array);
+    result.should.have.eql([
       {id: 1, name: 'aaa'},
       {id: 2, name: 'bbb'},
       {id: 3, name: 'c'},
@@ -189,7 +166,7 @@ describe('"primaryKey" option', () => {
       primaryKey: 'x',
     });
 
-    source.should.containDeepOrdered([
+    source.should.eql([
       {x: 1},
       {x: 2},
       {x: 3},
@@ -211,21 +188,47 @@ describe('"primaryKey" option', () => {
 // });
 
 describe('"mapInsert" option', () => {
+  it('maps items before insert', () => {
+    const source = [{id: 1}, {id: 2}];
 
+    mergeItems(source, [{id: 1}, {id: 3}], {
+      mapInsert: data => {
+        return Object.assign({}, data, {
+          a: 5,
+        });
+      },
+    });
+
+    source.should.have.eql([
+      {id: 1},
+      {id: 2},
+      {id: 3, a: 5},
+    ]);
+  });
 });
 
 describe('"mapUpdate" option', () => {
+  it('maps items before update', () => {
+    const source = [{id: 1}, {id: 2}];
 
+    mergeItems(source, [{id: 1}, {id: 3}], {
+      mapUpdate: data => {
+        return Object.assign({}, data, {
+          a: 5,
+        });
+      },
+    });
+
+    source.should.have.eql([
+      {id: 1, a: 5},
+      {id: 2},
+      {id: 3},
+    ]);
+  });
 });
 
 describe('"mapUpsert" option', () => {
-  it('throws if not a function');
-
-  it('passes data param');
-
-  it('passes isNew param');
-
-  it('upserts mapped items', () => {
+  it('maps items before upsert', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1}, {id: 3}], {
@@ -237,7 +240,7 @@ describe('"mapUpsert" option', () => {
       },
     });
 
-    source.should.have.containDeepOrdered([
+    source.should.have.eql([
       {id: 1, a: 5, isNew: false},
       {id: 2},
       {id: 3, a: 5, isNew: true},
@@ -246,15 +249,43 @@ describe('"mapUpsert" option', () => {
 });
 
 describe('"afterInsert" option', () => {
+  it('calls afterInsert callback', () => {
+    const source = [{id: 1}, {id: 2}];
 
+    mergeItems(source, [{id: 1, a: 5}, {id: 3, a: 1}], {
+      afterInsert: (obj, data) => {
+        obj.x = data.a * 3;
+      },
+    });
+
+    source.should.have.eql([
+      {id: 1, a: 5},
+      {id: 2},
+      {id: 3, a: 1, x: 3},
+    ]);
+  });
 });
 
 describe('"afterUpdate" option', () => {
+  it('calls afterUpdate callback', () => {
+    const source = [{id: 1}, {id: 2}];
 
+    mergeItems(source, [{id: 1, a: 5}, {id: 3, a: 1}], {
+      afterUpdate: (obj, data) => {
+        obj.x = data.a * 3;
+      },
+    });
+
+    source.should.have.eql([
+      {id: 1, a: 5, x: 15},
+      {id: 2},
+      {id: 3, a: 1},
+    ]);
+  });
 });
 
 describe('"afterUpsert" option', () => {
-  it('calls callback after upserting all items', () => {
+  it('calls afterUpsert callback', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1, a: 5}, {id: 3, a: 1}], {
@@ -264,10 +295,10 @@ describe('"afterUpsert" option', () => {
       },
     });
 
-    source.should.have.containDeepOrdered([
+    source.should.have.eql([
       {id: 1, a: 5, x: 15, isNew: false},
       {id: 2},
-      {id: 3, x: 3, isNew: true},
+      {id: 3, a: 1, x: 3, isNew: true},
     ]);
   });
 });
