@@ -127,10 +127,17 @@ describe('return value', () => {
       {id: 2, name: 'b'},
       {id: 5, name: 'e'},
     ];
-    const result = mergeItems(source, {id: 1, name: 'aaa'});
+    // updating
+    const res1 = mergeItems(source, {id: 1, name: 'aaa'});
 
-    result.should.be.instanceof(Object);
-    result.should.have.eql({id: 1, name: 'aaa'});
+    res1.should.be.instanceof(Object);
+    res1.should.have.eql({id: 1, name: 'aaa'});
+
+    // inserting
+    const res2 = mergeItems(source, {id: 3, name: 'ccc'});
+
+    res2.should.be.instanceof(Object);
+    res2.should.have.eql({id: 3, name: 'ccc'});
   });
 
   it('returns array of upserted items if array of items given', () => {
