@@ -1,10 +1,6 @@
 const should = require('should');
 const mergeItems = require('../dist/merge-items' + (process.env.NODE_ENV === 'production' ? '.min' : ''));
 
-function Person(body) {
-  Object.assign(this, body);
-}
-
 describe('"source" arg', () => {
   it('throws if source is not an array', () => {
     const args = [undefined, null, 0, 1, '', 'abc', {}];
@@ -18,6 +14,10 @@ describe('"source" arg', () => {
 describe('"itemArg" arg', () => {
   it('throws if itemArg is neither object nor array', () => {
     const args = [undefined, null, 0, 1, '', 'abc'];
+
+    function Person(body) {
+      Object.assign(this, body);
+    }
 
     args.forEach(arg => {
       (() => mergeItems([], arg)).should.throw('itemArg must be either object or array, ' + arg + ' given');
@@ -33,6 +33,10 @@ describe('"itemArg" arg', () => {
 
   it('throws if itemArg is an array containing non-object', () => {
     const args = [undefined, null, 0, 1, '', 'abc', []];
+
+    function Person(body) {
+      Object.assign(this, body);
+    }
 
     args.forEach(arg => {
       (() => mergeItems([], [arg])).should.throw('itemArg contains non-object: ' + arg);
@@ -271,6 +275,27 @@ describe('"afterInsert" option', () => {
       {id: 3, a: 1, x: 3},
     ]);
   });
+
+  it('passes original data param in afterInsert', () => {
+    const source = [];
+
+    class Person {
+      constructor(body) {
+        this.id = body.id;
+        this.a = body.a * 5;
+      }
+    }
+
+    mergeItems(source, [{id: 1, a: 3}], {
+      mapInsert: data => new Person(data),
+      afterInsert: (obj, data, isNew) => {
+        obj.x = data.a;
+      },
+    });
+
+    source[0].should.have.properties({id: 1, a: 15, x: 3});
+    Object.keys(source[0]).should.have.length(3);
+  });
 });
 
 describe('"afterUpdate" option', () => {
@@ -287,6 +312,22 @@ describe('"afterUpdate" option', () => {
       {id: 1, a: 5, x: 15},
       {id: 2},
       {id: 3, a: 1},
+    ]);
+  });
+
+  it('passes original data param in afterUpdate', () => {
+    const source = [{id: 1, a: 3}];
+    const item = {id: 1, a: 5};
+
+    mergeItems(source, [item], {
+      afterUpdate: (obj, data, isNew) => {
+        item.a = 123;
+        obj.x = data.a;
+      },
+    });
+
+    source.should.eql([
+      {id: 1, a: 5, x: 5},
     ]);
   });
 });
@@ -307,5 +348,26 @@ describe('"afterUpsert" option', () => {
       {id: 2},
       {id: 3, a: 1, x: 3, isNew: true},
     ]);
+  });
+
+  it('passes original data param in afterUpsert', () => {
+    const source = [];
+
+    class Person {
+      constructor(body) {
+        this.id = body.id;
+        this.a = body.a * 5;
+      }
+    }
+
+    mergeItems(source, [{id: 1, a: 3}], {
+      mapInsert: data => new Person(data),
+      afterUpsert: (obj, data, isNew) => {
+        obj.x = data.a;
+      },
+    });
+
+    source[0].should.have.properties({id: 1, a: 15, x: 3});
+    Object.keys(source[0]).should.have.length(3);
   });
 });
