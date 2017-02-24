@@ -7,7 +7,7 @@
 
 ## New features
 
-- added object lifetime callbacks supported in `options`
+- added `options` callbacks
   - mapInsert(data)
   - mapUpdate(data)
   - mapUpsert(data, isNew)
