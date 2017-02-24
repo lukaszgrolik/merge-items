@@ -1,7 +1,7 @@
 {
   "name": "merge-items",
   "version": "0.1.0",
-  "main": "dist/merge-items.min.js",
+  "main": "dist/merge-items.js",
   "description": "Upserts documents (objects) into collections (arrays) by primary key",
   "keywords": [
     "collection",
@@ -34,9 +34,9 @@
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-stage-0": "^6.5.0",
-    "mocha": "^2.5.3",
-    "should": "^9.0.2",
-    "webpack": "^1.13.1"
+    "mocha": "^3.2.0",
+    "should": "^11.2.0",
+    "webpack": "^1.14.0"
   },
   "license": "MIT"
 }
