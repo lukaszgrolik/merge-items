@@ -1,89 +1,5 @@
-const should = require('should');
-const mergeItems = require('../dist/merge-items' + (process.env.NODE_ENV === 'production' ? '.min' : ''));
-
-describe('"source" arg', () => {
-  it('throws if source is not an array', () => {
-    const args = [undefined, null, 0, 1, '', 'abc', {}];
-
-    args.forEach(arg => {
-      (() => mergeItems(arg)).should.throw('source must be an array, ' + arg + ' given');
-    });
-  });
-});
-
-describe('"itemArg" arg', () => {
-  it('throws if itemArg is neither object nor array', () => {
-    const args = [undefined, null, 0, 1, '', 'abc'];
-
-    function Person(body) {
-      Object.assign(this, body);
-    }
-
-    args.forEach(arg => {
-      (() => mergeItems([], arg)).should.throw('itemArg must be either object or array, ' + arg + ' given');
-    });
-
-    // should not throw
-    mergeItems([], new Person({id: 1}));
-  });
-
-  it('throws if itemArg is an object without primaryKey', () => {
-    (() => mergeItems([], {x: 1})).should.throw('primary key "id" is missing in itemArg {"x":1}');
-  });
-
-  it('throws if itemArg is an array containing non-object', () => {
-    const args = [undefined, null, 0, 1, '', 'abc', []];
-
-    function Person(body) {
-      Object.assign(this, body);
-    }
-
-    args.forEach(arg => {
-      (() => mergeItems([], [arg])).should.throw('itemArg contains non-object: ' + arg);
-    });
-
-    // should not throw
-    mergeItems([], [new Person({id: 1})]);
-  });
-
-  it('throws if itemArg is an array containing object without primaryKey', () => {
-    const arg = [{id: 1}, {x: 1}];
-
-    (() => mergeItems([], arg)).should.throw('primary key "id" is missing in object {"x":1}');
-  });
-
-  it('throws if itemArg is an array containing objects with the same primaryKey', () => {
-    const arg = [{id: 1}, {id: 2, a: 1}, {id: 2, a: 2}];
-
-    (() => mergeItems([], arg)).should.throw('primary key "id" in object {"id":2,"a":2} is not unique');
-  });
-});
-
-describe('"options" arg', () => {
-  it('throws if options is not an object', () => {
-    const args = [null, 0, 1, '', 'abc', []];
-
-    args.forEach(arg => {
-      (() => mergeItems([], [], arg)).should.throw('options must be an object, ' + arg + ' given');
-    });
-  });
-
-  // it('throws if mapper is given but is not a function', () => {
-  //   const args = [undefined, null, 0, 1, '', 'abc', {}, []];
-
-  //   args.forEach(arg => {
-  //     (() => mergeItems([], [], {mapper: arg})).should.throw('mapper must be a function, ' + arg + ' given');
-  //   });
-  // });
-
-  it('throws if primaryKey is not a string', () => {
-    const args = [null, 0, 1, '', {}, []];
-
-    args.forEach(arg => {
-      (() => mergeItems([], [], {primaryKey: arg})).should.throw('primaryKey must be a string, ' + arg + ' given');
-    });
-  });
-});
+import * as should from 'should';
+import mergeItems from '../index';
 
 describe('upserting', () => {
   it('upserts single item', () => {
@@ -92,8 +8,8 @@ describe('upserting', () => {
       {id: 2, name: 'b'},
     ];
 
-    mergeItems(source, {id: 1, name: 'aaa'});
-    mergeItems(source, {id: 3, name: 'c'});
+    mergeItems(source, {id: 1, name: 'aaa'}, {primaryKey: 'id'});
+    mergeItems(source, {id: 3, name: 'c'}, {primaryKey: 'id'});
 
     source.should.have.length(3);
     source.should.eql([
@@ -113,7 +29,7 @@ describe('upserting', () => {
       {id: 3, name: 'c'},
     ];
 
-    mergeItems(source, newItems);
+    mergeItems(source, newItems, {primaryKey: 'id'});
 
     source.should.have.length(3);
     source.should.eql([
@@ -132,13 +48,13 @@ describe('return value', () => {
       {id: 5, name: 'e'},
     ];
     // updating
-    const res1 = mergeItems(source, {id: 1, name: 'aaa'});
+    const res1 = mergeItems(source, {id: 1, name: 'aaa'}, {primaryKey: 'id'});
 
     res1.should.be.instanceof(Object);
     res1.should.have.eql({id: 1, name: 'aaa'});
 
     // inserting
-    const res2 = mergeItems(source, {id: 3, name: 'ccc'});
+    const res2 = mergeItems(source, {id: 3, name: 'ccc'}, {primaryKey: 'id'});
 
     res2.should.be.instanceof(Object);
     res2.should.have.eql({id: 3, name: 'ccc'});
@@ -157,7 +73,7 @@ describe('return value', () => {
       {id: 4, name: 'd'},
     ];
 
-    const result = mergeItems(source, newItems);
+    const result = mergeItems(source, newItems, {primaryKey: 'id'});
 
     result.should.be.instanceof(Array);
     result.should.have.eql([
@@ -203,6 +119,7 @@ describe('"mapInsert" option', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1}, {id: 3}], {
+      primaryKey: 'id',
       mapInsert: data => {
         return Object.assign({}, data, {
           a: 5,
@@ -223,6 +140,7 @@ describe('"mapUpdate" option', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1}, {id: 3}], {
+      primaryKey: 'id',
       mapUpdate: data => {
         return Object.assign({}, data, {
           a: 5,
@@ -243,6 +161,7 @@ describe('"mapUpsert" option', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1}, {id: 3}], {
+      primaryKey: 'id',
       mapUpsert: (data, isNew) => {
         return Object.assign({}, data, {
           a: 5,
@@ -264,6 +183,7 @@ describe('"afterInsert" option', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1, a: 5}, {id: 3, a: 1}], {
+      primaryKey: 'id',
       afterInsert: (obj, data) => {
         obj.x = data.a * 3;
       },
@@ -277,16 +197,20 @@ describe('"afterInsert" option', () => {
   });
 
   it('passes original data param in afterInsert', () => {
-    const source = [];
+    const source: {}[] = [];
 
     class Person {
-      constructor(body) {
+      id: number;
+      a: number;
+
+      constructor(body: {id: number; a: number}) {
         this.id = body.id;
         this.a = body.a * 5;
       }
     }
 
     mergeItems(source, [{id: 1, a: 3}], {
+      primaryKey: 'id',
       mapInsert: data => new Person(data),
       afterInsert: (obj, data, isNew) => {
         obj.x = data.a;
@@ -303,6 +227,7 @@ describe('"afterUpdate" option', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1, a: 5}, {id: 3, a: 1}], {
+      primaryKey: 'id',
       afterUpdate: (obj, data) => {
         obj.x = data.a * 3;
       },
@@ -320,6 +245,7 @@ describe('"afterUpdate" option', () => {
     const item = {id: 1, a: 5};
 
     mergeItems(source, [item], {
+      primaryKey: 'id',
       afterUpdate: (obj, data, isNew) => {
         item.a = 123;
         obj.x = data.a;
@@ -337,6 +263,7 @@ describe('"afterUpsert" option', () => {
     const source = [{id: 1}, {id: 2}];
 
     mergeItems(source, [{id: 1, a: 5}, {id: 3, a: 1}], {
+      primaryKey: 'id',
       afterUpsert: (obj, data, isNew) => {
         obj.x = data.a * 3;
         obj.isNew = isNew;
@@ -351,16 +278,20 @@ describe('"afterUpsert" option', () => {
   });
 
   it('passes original data param in afterUpsert', () => {
-    const source = [];
+    const source: {}[] = [];
 
     class Person {
-      constructor(body) {
+      id: number;
+      a: number;
+
+      constructor(body: {id: number; a: number}) {
         this.id = body.id;
         this.a = body.a * 5;
       }
     }
 
     mergeItems(source, [{id: 1, a: 3}], {
+      primaryKey: 'id',
       mapInsert: data => new Person(data),
       afterUpsert: (obj, data, isNew) => {
         obj.x = data.a;
